@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cosy Personal</title>
+    <style>
+        :root {
+            --color-primary: #4CAF50; /* Verde principal */
+            --color-secondary: #8BC34A; /* Verde más claro */
+            --color-tertiary: #FFEB3B; /* Amarillo vibrante */
+            --color-text-dark: #212121; /* Texto oscuro */
+            --color-text-light: #FAFAFA; /* Texto claro */
+            --color-background: #F1F8E9; /* Fondo claro */
+            --color-card-bg: #FFFFFF; /* Fondo de tarjeta */
+            --color-border: #E0E0E0; /* Borde suave */
+            --color-accent: #FFC107; /* Amarillo de acento */
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: var(--color-background);
+            color: var(--color-text-dark);
+            margin: 0;
+            padding: 0;
+        }
+
+        header {
+            background-color: var(--color-primary);
+            color: var(--color-text-light);
+            padding: 20px;
+            text-align: center;
+            font-size: 2em;
+            font-weight: bold;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .container {
+            padding: 10px;
+            max-width: 800px;
+            margin: auto;
+        }
+
+        /* --- FILTROS --- */
+        .filters {
+            background-color: var(--color-card-bg);
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .filters h3 {
+            margin-top: 0;
+            margin-bottom: 10px;
+            font-size: 1.2em;
+        }
+
+        .filter-group {
+            margin-bottom: 15px;
+        }
+
+        .filter-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        
+        .filter-options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .filter-options button {
+            background-color: var(--color-background);
+            border: 1px solid var(--color-border);
+            border-radius: 20px;
+            padding: 8px 15px;
+            font-size: 0.9em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .filter-options button.active {
+            background-color: var(--color-secondary);
+            color: var(--color-text-light);
+            border-color: var(--color-secondary);
+            font-weight: bold;
+        }
+
+        /* --- LISTA DE PRODUCTOS --- */
+        .product-list {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        .product-card {
+            background-color: var(--color-card-bg);
+            border-radius: 10px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+            padding: 20px;
+            border-left: 5px solid var(--color-primary);
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .product-card h4 {
+            margin: 0;
+            font-size: 1.2em;
+            color: var(--color-primary);
+        }
+
+        .product-card p {
+            margin: 0;
+            font-size: 0.9em;
+            line-height: 1.4;
+        }
+
+        .product-card .add-to-cart {
+            background-color: var(--color-tertiary);
+            color: var(--color-text-dark);
+            border: none;
+            padding: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.3s ease;
+            margin-top: 10px;
+        }
+        
+        .product-card .add-to-cart:hover {
+            background-color: var(--color-accent);
+        }
+
+        /* --- CARRITO DE COMPRAS --- */
+        .cart-section {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background-color: var(--color-primary);
+            color: var(--color-text-light);
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 -2px 5px rgba(0,0,0,0.1);
+            z-index: 1000;
+        }
+
+        .cart-button {
+            background-color: var(--color-tertiary);
+            color: var(--color-text-dark);
+            border: none;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-size: 1em;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        
+        .cart-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.6);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+        }
+        
+        .cart-content {
+            background-color: var(--color-card-bg);
+            padding: 20px;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 500px;
+            max-height: 80vh;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .cart-content h3 {
+            margin-top: 0;
+            color: var(--color-primary);
+        }
+
+        .cart-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--color-border);
+        }
+
+        .cart-item:last-child {
+            border-bottom: none;
+        }
+
+        .cart-item .remove-btn {
+            background-color: #f44336;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .whatsapp-btn {
+            background-color: #25D366;
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 50px;
+            font-size: 1.1em;
+            font-weight: bold;
+            text-align: center;
+            text-decoration: none;
+            display: block;
+            margin-top: 20px;
+        }
+        .whatsapp-btn img {
+            width: 24px;
+            vertical-align: middle;
+            margin-right: 8px;
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            font-size: 1.5em;
+            cursor: pointer;
+            color: var(--color-text-dark);
+        }
+
+    </style>
+</head>
+<body>
+    <header>
+        Cosy Personal
+    </header>
+
+    <div class="container">
+        
+        <div class="filters">
+            <h3>Filtros</h3>
+            
+            <div class="filter-group">
+                <label>Categoría</label>
+                <div class="filter-options" id="category-filters">
+                    <button data-filter="aceites-esenciales">Aceites Esenciales</button>
+                    <button data-filter="extractos-derivados">Extractos y Derivados</button>
+                </div>
+            </div>
+
+            <div class="filter-group">
+                <label>Propiedad</label>
+                <div class="filter-options" id="property-filters">
+                    <button data-filter="floral">Floral</button>
+                    <button data-filter="hojas">Hojas</button>
+                    <button data-filter="fruto-cascara">Fruto/Cáscara</button>
+                    <button data-filter="semilla">Semilla</button>
+                    <button data-filter="tallo-corteza-madera">Tallo/Corteza/Madera</button>
+                    <button data-filter="raiz-rizoma">Raíz/Rizoma</button>
+                    <button data-filter="macerados-infusiones">Macerados/Infusiones</button>
+                    <button data-filter="resinas-balsamos">Resinas/Bálsamos</button>
+                    <button data-filter="absolutos">Absolutos</button>
+                    <button data-filter="aceites-vegetales">Aceites Vegetales</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="product-list" id="product-list">
+            
+            <div class="product-card" data-category="aceites-esenciales" data-property="floral">
+                <h4>Ylang Ylang</h4>
+                <p>Regula grasa en piel/cabello, antiestrías, afrodisíaco en perfumes.</p>
+                <button class="add-to-cart" onclick="addToCart('Ylang Ylang')">Agregar al Carrito</button>
+            </div>
+            <div class="product-card" data-category="aceites-esenciales" data-property="floral">
+                <h4>Manzanilla</h4>
+                <p>Calma irritaciones (piel sensible), aclara cabello rubio natural.</p>
+                <button class="add-to-cart" onclick="addToCart('Manzanilla')">Agregar al Carrito</button>
+            </div>
+            <div class="product-card" data-category="aceites-esenciales" data-property="floral">
+                <h4>Neroli</h4>
+                <p>Regenera piel madura, reduce cicatrices, equilibra pH.</p>
+                <button class="add-to-cart" onclick="addToCart('Neroli')">Agregar al Carrito</button>
+            </div>
+            <div class="product-card" data-category="aceites-esenciales" data-property="floral">
+                <h4>Helicriso</h4>
+                <p>Antiedad (estimula colágeno), trata hematomas y rojeces.</p>
+                <button class="add-to-cart" onclick="addToCart('Helicriso')">Agregar al Carrito</button>
+            </div>
+            <div class="product-card" data-category="aceites-esenciales" data-property="floral">
+                <h4>Geranio</h4>
+                <p>Balancea piel mixta, cicatrizante, repele insectos.</p>
+                <button class="add-to-cart" onclick="addToCart('Geranio')">Agregar al Carrito</button>
+            </div>
+            <div class="product-card" data-category="aceites-esenciales" data-property="floral">
+                <h4>Tajete</h4>
+                <p>Antimicrobiano para acné, revitaliza piel opaca.</p>
+                <button class="add-to-cart" onclick="addToCart('Tajete')">Agregar al Carrito</button>
+            </div>
+            <div class="product-card" data-category="aceites-esenciales" data-property="floral">
+                <h4>Rosa</h4>
+                <p>Hidratante profunda, antiarrugas, eleva ánimo.</p>
+                <button class="add-to-cart" onclick="addToCart('Rosa')">Agregar al Carrito</button>
+            </div>
+            
+            <div class="product-card" data-category="aceites-esenciales" data-property="hojas">
+                <h4>Árbol de té</h4>
+                <p>Antibacteriano (acné, hongos en uñas/cuero cabelludo).</p>
+                <button class="add-to-cart" onclick="addToCart('Árbol de té')">Agregar al Carrito</button>
+            </div>
+            <div class="product-card" data-category="aceites-esenciales" data-property="hojas">
+                <h4>Mejorana</h4>
+                <p>Relaja músculos (cremas post-depilación), antiinflamatoria.</p>
+                <button class="add-to-cart" onclick="addToCart('Mejorana')">Agregar al Carrito</button>
+            </div>
+            <div class="product-card" data-category="aceites-esenciales" data-property="hojas">
+                <h4>Enebro</h4>
+                <p>Desintoxicante (piel con impurezas), reafirmante.</p>
+                <button class="add-to-cart" onclick="addToCart('Enebro')">Agregar al Carrito</button>
+            </div>
+            <div class="product-card" data-category="aceites-esenciales" data-property="hojas">
+                <h4>Eucalipto</h4>
+                <p>Descongestionante (piel con psoriasis), purificante.</p>
+                <button class="add-to-cart" onclick="addToCart('Eucalipto')">Agregar al Carrito</button>
+            </div>
+            <div class="product-card" data-category="aceites-esenciales" data-property="hojas">
+                <h4>Menta</h4>
+                <p>Refrescante (pies cansados), controla caspa grasa.</p>
+                <button class="add-to-cart" onclick="addToCart('Menta')">Agregar al Carrito</button>
+            </div>
+            <div class="product-card" data-category="aceites-esenciales" data-property="hojas">
+                <h4>Laurel</h4>
+                <p>Antiséptico (heridas leves), estimula crecimiento capilar.</p>
+                <button class="add-to-cart" onclick="addToCart('Laurel')">Agregar al Carrito</button>
+            </div>
+            <div class="product-card" data-category="aceites-esenciales" data-property="hojas">
+                <h4>Orégano</h4>
+                <p>Potente antifúngico (mezclar con aceite portador).</p>
+                <button class="add-to-cart" onclick="addToCart('Orégano')">Agregar al Carrito</button>
+            </div>
+            <div class="product-card" data-category="aceites-esenciales" data-property="hojas">
+                <h4>Gaulteria</h4>
+                <p>Alivia dolores musculares (en gel deportivo).</p>
+                <button class="add-to-cart" onclick="addToCart('Gaulteria')">Agregar al Carrito</button>
+            </div>
+            <div class="product-card" data-category="aceites-esenciales" data-property="hojas">
+                <h4>Tomillo</h4>
+                <p>Combate acné persistente, fortalece uñas quebradizas.</p>
+                <button class="add-to-cart" onclick="addToCart('Tomillo')">Agregar al Carrito</button>
+            </div>
+            <div class="product-card" data-category="aceites-esenciales" data-property="hojas">
+                <h4>Pino</h4>
+                <p>Revitalizante (baños desfatigantes), antiséptico.</p>
+                <button class="add-to-cart" onclick="addToCart('Pino')">Agregar al Carrito</button>
+            </div>
+            <div class="product-card" data-category="aceites-esenciales" data-property="hojas">
+                <h4>Romero</h4>
+                <p>Estimula circulación (cremas anticelulíticas), crecimiento capilar.</p>
+                <button class="add-to-cart" onclick="addToCart('Romero')">Agregar al Carrito</button>
+            </div>
+            <div class="product-card" data-category="aceites-esenciales" data-property="hojas">
+                <h4>Palmarosa</h4>
+                <p>Regenera piel seca, aroma floral en jabones.</p>
+                <button class="add-to-cart" onclick="addToCart('Palmarosa')">Agregar al Carrito</button>
+            </div>
+            <div class="product-card" data-category="aceites-esenciales" data-property="hojas">
+                <h4>Lavanda</h4>
+                <p>Cicatrizante (quemaduras leves), calma pieles con eczema.</p>
+                <button class="add-to-cart" onclick="addToCart('Lavanda')">Agregar al Carrito</button>
+            </div>
+            <div class="product-card" data-category="aceites-esenciales" data-property="hojas">
+                <h4>Zacate de limón</h4>
+                <p>Tonifica piel grasa, repelente natural.</p>
+                <button class="add-to-cart" onclick="addToCart('Zacate de limón')">Agregar al Carrito</button>
+            </div>
+
+            <div class="product-card" data-category="aceites-esenciales" data-property="fruto-cascara">
+                <h4>Litsea cubeba</h4>
+                <p>Uniformiza tono de piel, aroma cítrico en perfumería.</p>
+                <button class="add-to-cart" onclick="addToCart('Litsea cubeba')">Agregar al Carrito</button>
+            </div>
+            <div class="product-card" data-category="aceites-esenciales" data-property="fruto-cascara">
+                <h4>Bergamota</h4>
+                <p>Regula sebo (piel mixta), antidepresivo en aromaterapia.</p>
+                <button class="add-to-cart" onclick="addToCart('Bergamota')">Agregar al Carrito</button>
+            </div>
+            <div class="product-card" data-category="aceites-esenciales" data-property="fruto-cascara">
+                <h4>Naranja dulce</h4>
+                <p>Brillo en cabello, elimina toxinas en piel.</p>
+                <button class="add-to-cart" onclick="addToCart('Naranja dulce')">Agregar al Carrito</button>
+            </div>
+            <div class="product-card" data-category="aceites-esenciales" data-property="fruto-cascara">
+                <h4>Mandarina</h4>
+                <p>Suaviza estrías, calmante para niños (diluido).</p>
+                <button class="add-to-cart" onclick="addToCart('Mandarina')">Agregar al Carrito</button>
+            </div>
+
+            <div class="product-card" data-category="aceites-esenciales" data-property="semilla">
+                <h4>Anís</h4>
+                <p>Antiséptico para piel con granos, alivia picaduras.</p>
+                <button class="add-to-cart" onclick="addToCart('Anís')">Agregar al Carrito</button>
+            </div>
+            <div class="product-card" data-category="aceites-esenciales" data-property="semilla">
+                <h4>Zanahoria</h4>
+                <p>Bronceador natural (mezclar con aceite base), antiedad.</p>
+                <button class="add-to-cart" onclick="addToCart('Zanahoria')">Agregar al Carrito</button>
+            </div>
+            <div class="product-card" data-category="aceites-esenciales" data-property="semilla">
+                <h4>Hinojo</h4>
+                <p>Reduce celulitis (masajes), tonifica piel flácida.</p>
+                <button class="add-to-cart" onclick="addToCart('Hinojo')">Agregar al Carrito</button>
+            </div>
+            <div class="product-card" data-category="aceites-esenciales" data-property="semilla">
+                <h4>Semilla negra</h4>
+                <p>Potente antioxidante, trata psoriasis/eccemas.</p>
+                <button class="add-to-cart" onclick="addToCart('Semilla negra')">Agregar al Carrito</button>
+            </div>
+            <div class="product-card" data-category="aceites-esenciales" data-property="semilla">
+                <h4>Vainilla</h4>
+                <p>Afrodisíaco en perfumes, hidrata piel seca.</p>
+                <button class="add-to-cart" onclick="addToCart('Vainilla')">Agregar al Carrito</button>
+            </div>
+
+            <div class="product-card" data-category="aceites-esenciales" data-property="tallo-corteza-madera">
+                <h4>Palo Santo</h4>
+                <p>Protege piel de estrés ambiental, aroma relajante.</p>
+                <button class="add-to-cart" onclick="addToCart('Palo Santo')">Agregar al Carrito</button>
+            </div>
+            <div class="product-card" data-category="aceites-esenciales" data-property="tallo-corteza-madera">
+                <h4>Canela</h4>
+                <p>Estimulante sanguíneo (evitar en piel sensible), labiales naturales.</p>
+                <button class="add-to-cart" onclick="addToCart('Canela')">Agregar al Carrito</button>
+            </div>
+            <div class="product-card" data-category="aceites-esenciales" data-property="tallo-corteza-madera">
+                <h4>Sándalo</h4>
+                <p>Repara piel agrietada, meditativo en perfumes.</p>
+                <button class="add-to-cart" onclick="addToCart('Sándalo')">Agregar al Carrito</button>
+            </div>
+            <div class="product-card" data-category="aceites-esenciales" data-property="tallo-corteza-madera">
+                <h4>Cedro</h4>
+                <p>Controla caída de cabello, reduce piel de naranja.</p>
+                <button class="add-to-cart" onclick="addToCart('Cedro')">Agregar al Carrito</button>
+            </div>
+            <div class="product-card" data-category="aceites-esenciales" data-property="tallo-corteza-madera">
+                <h4>Ciprés</h4>
+                <p>Reduce varices, astringente para poros abiertos.</p>
+                <button class="add-to-cart" onclick="addToCart('Ciprés')">Agregar al Carrito</button>
+            </div>
+
+            <div class="product-card" data-category="aceites-esenciales" data-property="raiz-rizoma">
+                <h4>Nardo</h4>
+                <p>Regenera piel madura, sagrado en rituales de belleza.</p>
+                <button class="add-to-cart" onclick="addToCart('Nardo')">Agregar al Carrito</button>
+            </div>
+            <div class="product-card" data-category="aceites-esenciales" data-property="raiz-rizoma">
+                <h4>Vetiver</h4>
+                <p>Reparador de piel dañada por sol, fijador en perfumes.</p>
+                <button class="add-to-cart" onclick="addToCart('Vetiver')">Agregar al Carrito</button>
+            </div>
+
+            <div class="product-card" data-category="extractos-derivados" data-property="macerados-infusiones">
+                <h4>Flor de San Juan</h4>
+                <p>Cicatrizante (quemaduras, heridas), calma piel irritada.</p>
+                <button class="add-to-cart" onclick="addToCart('Flor de San Juan')">Agregar al Carrito</button>
+            </div>
+            <div class="product-card" data-category="extractos-derivados" data-property="macerados-infusiones">
+                <h4>Caléndula</h4>
+                <p>Bálsamo para dermatitis del pañal, labios agrietados.</p>
+                <button class="add-to-cart" onclick="addToCart('Caléndula')">Agregar al Carrito</button>
+            </div>
+
+            <div class="product-card" data-category="extractos-derivados" data-property="resinas-balsamos">
+                <h4>Mirra</h4>
+                <p>Regenera piel agrietada, enjuague bucal natural.</p>
+                <button class="add-to-cart" onclick="addToCart('Mirra')">Agregar al Carrito</button>
+            </div>
+            <div class="product-card" data-category="extractos-derivados" data-property="resinas-balsamos">
+                <h4>Copaiba</h4>
+                <p>Antiinflamatorio (acné quístico), reduce estrías.</p>
+                <button class="add-to-cart" onclick="addToCart('Copaiba')">Agregar al Carrito</button>
+            </div>
+
+            <div class="product-card" data-category="extractos-derivados" data-property="absolutos">
+                <h4>Rosa absoluto</h4>
+                <p>Reafirmante para busto/cuello, antiedad profundo.</p>
+                <button class="add-to-cart" onclick="addToCart('Rosa absoluto')">Agregar al Carrito</button>
+            </div>
+            <div class="product-card" data-category="extractos-derivados" data-property="absolutos">
+                <h4>Jazmín absoluto</h4>
+                <p>Elasticidad en piel madura, reduce marcas de parto.</p>
+                <button class="add-to-cart" onclick="addToCart('Jazmín absoluto')">Agregar al Carrito</button>
+            </div>
+
+            <div class="product-card" data-category="extractos-derivados" data-property="aceites-vegetales">
+                <h4>Rosa mosqueta</h4>
+                <p>Regenera cicatrices, uniformiza tono.</p>
+                <button class="add-to-cart" onclick="addToCart('Rosa mosqueta')">Agregar al Carrito</button>
+            </div>
+            <div class="product-card" data-category="extractos-derivados" data-property="aceites-vegetales">
+                <h4>Almendras</h4>
+                <p>Desmaquillante natural, nutre pestañas.</p>
+                <button class="add-to-cart" onclick="addToCart('Almendras')">Agregar al Carrito</button>
+            </div>
+            <div class="product-card" data-category="extractos-derivados" data-property="aceites-vegetales">
+                <h4>Argán</h4>
+                <p>Antioxidante (protege de polución), brillo en cabello rizado.</p>
+                <button class="add-to-cart" onclick="addToCart('Argán')">Agregar al Carrito</button>
+            </div>
+            <div class="product-card" data-category="extractos-derivados" data-property="aceites-vegetales">
+                <h4>Aguacate</h4>
+                <p>Nutrición intensa (pieles muy secas), reparador nocturno.</p>
+                <button class="add-to-cart" onclick="addToCart('Aguacate')">Agregar al Carrito</button>
+            </div>
+            <div class="product-card" data-category="extractos-derivados" data-property="aceites-vegetales">
+                <h4>Linaza</h4>
+                <p>Cabello quebradizo, uñas frágiles.</p>
+                <button class="add-to-cart" onclick="addToCart('Linaza')">Agregar al Carrito</button>
+            </div>
+            <div class="product-card" data-category="extractos-derivados" data-property="aceites-vegetales">
+                <h4>Jojoba</h4>
+                <p>Regula sebo (piel/cabello graso), no comedogénico.</p>
+                <button class="add-to-cart" onclick="addToCart('Jojoba')">Agregar al Carrito</button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="cart-section">
+        <span id="cart-item-count">0 items en el carrito</span>
+        <button class="cart-button" onclick="showCart()">Ver Carrito</button>
+    </div>
+
+    <div id="cart-modal" class="cart-modal">
+        <div class="cart-content">
+            <span class="close-modal" onclick="closeCart()">&times;</span>
+            <h3>Tu Carrito de Compras</h3>
+            <div id="cart-items-list">
+                </div>
+            <a href="#" class="whatsapp-btn" id="whatsapp-link" target="_blank">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" alt="WhatsApp">
+                Enviar pedido por WhatsApp
+            </a>
+        </div>
+    </div>
+    
+    <script>
+        const cart = {};
+        const productList = document.getElementById('product-list');
+        const categoryFilters = document.getElementById('category-filters');
+        const propertyFilters = document.getElementById('property-filters');
+        const cartCountSpan = document.getElementById('cart-item-count');
+        const cartModal = document.getElementById('cart-modal');
+        const cartItemsList = document.getElementById('cart-items-list');
+        const whatsappLink = document.getElementById('whatsapp-link');
+
+        let activeCategoryFilter = null;
+        let activePropertyFilter = null;
+        
+        function updateFilters() {
+            const productCards = document.querySelectorAll('.product-card');
+            productCards.forEach(card => {
+                const category = card.getAttribute('data-category');
+                const property = card.getAttribute('data-property');
+                
+                const showByCategory = !activeCategoryFilter || category === activeCategoryFilter;
+                const showByProperty = !activePropertyFilter || property === activePropertyFilter;
+                
+                if (showByCategory && showByProperty) {
+                    card.style.display = 'flex';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        }
+        
+        categoryFilters.addEventListener('click', (e) => {
+            if (e.target.tagName === 'BUTTON') {
+                const filter = e.target.getAttribute('data-filter');
+                if (activeCategoryFilter === filter) {
+                    activeCategoryFilter = null;
+                    e.target.classList.remove('active');
+                } else {
+                    document.querySelectorAll('#category-filters button.active').forEach(btn => btn.classList.remove('active'));
+                    activeCategoryFilter = filter;
+                    e.target.classList.add('active');
+                }
+                updateFilters();
+            }
+        });
+        
+        propertyFilters.addEventListener('click', (e) => {
+            if (e.target.tagName === 'BUTTON') {
+                const filter = e.target.getAttribute('data-filter');
+                if (activePropertyFilter === filter) {
+                    activePropertyFilter = null;
+                    e.target.classList.remove('active');
+                } else {
+                    document.querySelectorAll('#property-filters button.active').forEach(btn => btn.classList.remove('active'));
+                    activePropertyFilter = filter;
+                    e.target.classList.add('active');
+                }
+                updateFilters();
+            }
+        });
+        
+        function addToCart(item) {
+            cart[item] = (cart[item] || 0) + 1;
+            updateCart();
+        }
+        
+        function removeFromCart(item) {
+            if (cart[item]) {
+                delete cart[item];
+            }
+            updateCart();
+            renderCart();
+        }
+
+        function updateCart() {
+            const itemCount = Object.values(cart).reduce((sum, count) => sum + count, 0);
+            cartCountSpan.textContent = `${itemCount} items en el carrito`;
+        }
+
+        function showCart() {
+            renderCart();
+            cartModal.style.display = 'flex';
+        }
+
+        function closeCart() {
+            cartModal.style.display = 'none';
+        }
+        
+        function renderCart() {
+            cartItemsList.innerHTML = '';
+            let whatsappMessage = "Hola, me gustaría hacer un pedido de los siguientes productos:\n";
+            
+            if (Object.keys(cart).length === 0) {
+                cartItemsList.innerHTML = '<p>El carrito está vacío.</p>';
+                whatsappLink.style.display = 'none';
+                whatsappMessage = "Hola, me gustaría hacer un pedido pero el carrito está vacío.";
+            } else {
+                whatsappLink.style.display = 'block';
+                for (const item in cart) {
+                    const div = document.createElement('div');
+                    div.classList.add('cart-item');
+                    div.innerHTML = `
+                        <span>${item}</span>
+                        <button class="remove-btn" onclick="removeFromCart('${item}')">Eliminar</button>
+                    `;
+                    cartItemsList.appendChild(div);
+                    whatsappMessage += `• ${item}\n`;
+                }
+            }
+            
+            const encodedMessage = encodeURIComponent(whatsappMessage);
+            whatsappLink.href = `https://wa.me/50661288608?text=${encodedMessage}`;
+        }
+
+    </script>
+</body>
+</html>
